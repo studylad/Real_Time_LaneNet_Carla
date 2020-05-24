@@ -1,6 +1,6 @@
 # Real Time LaneNet Predictions in Carla (v0.1)
 
-This provides lane line segmentation from LaneNet in the autonomous driving research simulator Carla.
+This provides lane line segmentation from LaneNet in the autonomous driving research simulator Carla. Below is a video showing its functionality.
 
 
 [![lanenet carla](https://i.imgur.com/Y7q1tBf.png)](https://www.youtube.com/watch?v=47nwbZrG-aU "lanenet carla")
