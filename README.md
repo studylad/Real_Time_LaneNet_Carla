@@ -2,6 +2,9 @@
 
 This provides lane line segmentation from LaneNet in the autonomous driving research simulator Carla.
 
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/47nwbZrG-aU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 The LaneNet implementation is done in TensorFlow and is from @MaybeShewill-CV. The repository is [here](https://github.com/MaybeShewill-CV/lanenet-lane-detection).
 
 The original paper of LaneNet: [Towards End-to-End Lane Detection: an Instance Segmentation Approach](https://arxiv.org/abs/1802.05591)
