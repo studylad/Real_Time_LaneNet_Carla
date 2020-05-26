@@ -14,9 +14,9 @@ For the data pipeline from Carla, code from [carla-simulator/data-collector](htt
 
 ## Installation
 
-1. Following instructions and install [MaybeShewill-CV/lanenet-lane-detection](https://github.com/MaybeShewill-CV/lanenet-lane-detection)
+1. Follow instructions and install [MaybeShewill-CV/lanenet-lane-detection](https://github.com/MaybeShewill-CV/lanenet-lane-detection)
 
-2. Following instructions and install [carla-simulator/data-collector](https://github.com/carla-simulator/data-collector) as well as CarlaGear (i.e. Carla 0.8.4) (see carla-simulator/data-collector readme)
+2. Follow instructions and install [carla-simulator/data-collector](https://github.com/carla-simulator/data-collector) as well as CarlaGear (i.e. Carla 0.8.4) (see carla-simulator/data-collector readme)
 
 3. Merge respective files from the repos above into the files in this repo.
 
