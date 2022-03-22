@@ -40,10 +40,7 @@ def _morphological_process(image, kernel_size=5):
 
     kernel = cv2.getStructuringElement(shape=cv2.MORPH_ELLIPSE, ksize=(kernel_size, kernel_size))
 
-    # close operation fille hole
-    closing = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-    return closing
+    return cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel, iterations=1)
 
 
 def _connect_components_analysis(image):
@@ -213,12 +210,10 @@ class _LaneNetCluster(object):
 
         assert lane_embedding_feats.shape[0] == lane_coordinate.shape[0]
 
-        ret = {
+        return {
             'lane_embedding_feats': lane_embedding_feats,
             'lane_coordinates': lane_coordinate
         }
-
-        return ret
 
     def apply_lane_feats_cluster(self, binary_seg_result, instance_seg_result):
         """
@@ -252,7 +247,7 @@ class _LaneNetCluster(object):
             if label == -1:
                 continue
             idx = np.where(db_labels == label)
-            pix_coord_idx = tuple((coord[idx][:, 1], coord[idx][:, 0]))
+            pix_coord_idx = coord[idx][:, 1], coord[idx][:, 0]
             mask[pix_coord_idx] = self._color_map[index]
             lane_coords.append(coord[idx])
 
@@ -348,16 +343,28 @@ class LaneNetPostProcessor(object):
         # lane line fit
         fit_params = []
         src_lane_pts = []  # lane pts every single lane
-        for lane_index, coords in enumerate(lane_coords):
+        for coords in lane_coords:
             if data_source == 'tusimple':
                 tmp_mask = np.zeros(shape=(720, 1280), dtype=np.uint8)
-                tmp_mask[tuple((np.int_(coords[:, 1] * 720 / 256), np.int_(coords[:, 0] * 1280 / 512)))] = 255
+                tmp_mask[
+                    np.int_(coords[:, 1] * 720 / 256),
+                    np.int_(coords[:, 0] * 1280 / 512),
+                ] = 255
+
             elif data_source == 'beec_ccd':
                 tmp_mask = np.zeros(shape=(1350, 2448), dtype=np.uint8)
-                tmp_mask[tuple((np.int_(coords[:, 1] * 1350 / 256), np.int_(coords[:, 0] * 2448 / 512)))] = 255
+                tmp_mask[
+                    np.int_(coords[:, 1] * 1350 / 256),
+                    np.int_(coords[:, 0] * 2448 / 512),
+                ] = 255
+
             elif data_source == 'carla':
                 tmp_mask = np.zeros(shape=(1080, 1920), dtype=np.uint8)
-                tmp_mask[tuple((np.int_(coords[:, 1] * 1080 / 256), np.int_(coords[:, 0] * 1920 / 512)))] = 255
+                tmp_mask[
+                    np.int_(coords[:, 1] * 1080 / 256),
+                    np.int_(coords[:, 0] * 1920 / 512),
+                ] = 255
+
             else:
                 raise ValueError('Wrong data source now only support tusimple, beec_ccd, and carla')
             tmp_ipm_mask = cv2.remap(
@@ -385,7 +392,7 @@ class LaneNetPostProcessor(object):
                     continue
                 src_y = self._remap_to_ipm_y[
                     int(plot_y[index]), int(np.clip(fit_x[index], 0, ipm_image_width - 1))]
-                src_y = src_y if src_y > 0 else 0
+                src_y = max(src_y, 0)
 
                 lane_pts.append([src_x, src_y])
 
@@ -397,15 +404,16 @@ class LaneNetPostProcessor(object):
         for index, single_lane_pts in enumerate(src_lane_pts):
             single_lane_pt_x = np.array(single_lane_pts, dtype=np.float32)[:, 0]
             single_lane_pt_y = np.array(single_lane_pts, dtype=np.float32)[:, 1]
-            if data_source == 'tusimple':
+            if (
+                data_source == 'tusimple'
+                or data_source != 'beec_ccd'
+                and data_source == 'carla'
+            ):
                 start_plot_y = 240
                 end_plot_y = 720
             elif data_source == 'beec_ccd':
                 start_plot_y = 820
                 end_plot_y = 1350
-            elif data_source == 'carla':
-                start_plot_y = 240
-                end_plot_y = 720
             else:
                 raise ValueError('Wrong data source now only support tusimple and beec_ccd')
             step = int(math.floor((end_plot_y - start_plot_y) / 10))
@@ -443,10 +451,8 @@ class LaneNetPostProcessor(object):
                                           int(interpolation_src_pt_y)), 5, lane_color, -1)
 
         source_image = cv2.resize(source_image, (800, 600), interpolation=cv2.INTER_LINEAR)
-        ret = {
+        return {
             'mask_image': mask_image,
             'fit_params': fit_params,
             'source_image': source_image,
         }
-
-        return ret
